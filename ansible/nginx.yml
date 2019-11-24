@@ -1,0 +1,17 @@
+---
+
+- hosts: webservers
+  become: true
+  gather_facts: no
+  tasks:
+    - name: "Install NGINX"
+      apt:
+        name: "nginx"
+        update_cache: yes
+        state: "present"
+      notify: "start nginx"
+  handlers:
+    - name: "start nginx"
+      service:
+        name: nginx
+        state: started

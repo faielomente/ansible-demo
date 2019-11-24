@@ -1,0 +1,13 @@
+---
+plugin: gcp_compute         # name the plugin you want to use (use `ansible-doc -t inventory -l` to list available plugins)
+projects:
+  - devfest-258021          # Id of your gcp project
+zones:                      # regions from your project you want to fetch inventory from (you can also use zones instead of regions if you target one or several specific zones)        
+  - "asia-east1-a"
+filters: []
+groups:
+  webservers: "'test-' in name"
+auth_kind: serviceaccount    # gcp authentication kind. with service account you should provide the service account json key file to authenticate
+scopes: 
+ - https://www.googleapis.com/auth/compute
+service_account_file: ~/Documents/devfest-258021-78a81fdc408c.json   # Service account json keyfile
