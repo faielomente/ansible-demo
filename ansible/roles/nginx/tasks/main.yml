@@ -1,0 +1,8 @@
+---
+# tasks file for roles/nginx
+- name: "Install NGINX"
+  apt:
+    name: "nginx"
+    update_cache: yes
+    state: "present"
+  notify: "Start nginx"

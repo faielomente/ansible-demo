@@ -1,0 +1,5 @@
+---
+# tasks file for roles/gce
+- import_tasks: create.yml
+  tags:
+    - create

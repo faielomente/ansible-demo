@@ -1,0 +1,10 @@
+---
+# defaults file for roles/gce
+credentials_file: "{{ lookup('env', 'GCE_CREDENTIALS_FILE_PATH') }}"
+authentication_type: "{{ lookup('env', 'GCE_AUTH_KIND') }}"
+project_id: "{{ lookup('env', 'GCE_PROJECT_ID') }}"
+scopes: "{{ lookup('env', 'GCE_SCOPES') }}"
+machine_type: "n1-standard-1"
+zone: "asia-east1-a"
+region: "asia-east1"
+image: "projects/ubuntu-os-cloud/global/images/family/ubuntu-1804-lts"

@@ -1,0 +1,84 @@
+---
+- name: Create a network for "{{ instance }}"
+  gcp_compute_network:
+    name: "{{ instance }}-network"
+    project: "{{ project_id }}"
+    auth_kind: "{{ authentication_type }}"
+    service_account_file: "{{ credentials_file }}"
+    auto_create_subnetworks: yes
+    scopes: "{{ scopes }}"
+    state: present
+  register: network
+    
+- name: Create a firewall
+  gcp_compute_firewall:
+    name: "{{ instance }}-firewall"
+    network: "{{ network }}"
+    allowed:
+      - ip_protocol: tcp
+        ports: ['80','22']
+    source_ranges: ['0.0.0.0/0']
+    project: "{{ project_id }}"
+    auth_kind: "{{ authentication_type }}"
+    service_account_file: "{{ credentials_file }}"
+    state: present
+  register: firewall
+
+- name: Create a address for "{{ instance }}"
+  gcp_compute_address:
+    name: "{{ instance }}-address"
+    region: "{{ region }}"
+    project: "{{ project_id }}"
+    auth_kind: "{{ authentication_type }}"
+    service_account_file: "{{ credentials_file }}"
+    scopes: "{{ scopes }}"
+    state: present
+  register: address
+
+- name: Create a disk for "{{ instance }}"
+  gcp_compute_disk:
+    name: "{{ instance }}-disk"
+    size_gb: 100
+    source_image: "{{ image }}"
+    zone: "{{ zone }}"
+    project: "{{ project_id }}"
+    auth_kind: "{{ authentication_type }}"
+    service_account_file: "{{ credentials_file }}"
+    scopes: "{{ scopes }}"
+    state: present
+  register: disk
+
+- name: Launch instance ("{{ instance }}")
+  gcp_compute_instance:
+    name: "{{ instance }}-instance"
+    machine_type: "{{ machine_type }}"
+    disks:
+      - auto_delete: yes
+        boot: yes
+        source: "{{ disk }}"
+    network_interfaces:
+      - network: "{{ network }}"
+        access_configs:
+          - name: External NAT
+            nat_ip: "{{ address }}"
+            type: ONE_TO_ONE_NAT
+    scheduling:
+      preemptible: Yes
+    zone: "{{ zone }}"
+    auth_kind: "{{ authentication_type }}"
+    service_account_file: "{{ credentials_file }}"
+    project: "{{ project_id }}"
+    scopes: "{{ scopes }}"
+  register: gce
+
+- name: Add host to groupname
+  add_host:
+    hostname: "{{ address.address }}"
+    groupname: gce_instances
+
+- name: Wait for SSH to come up
+  wait_for:
+    host: "{{ address.address }}"
+    port: 22
+    delay: 10
+    timeout: 60

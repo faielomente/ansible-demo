@@ -1,0 +1,11 @@
+---
+- name: Create resources for ("{{ instance }}")
+  hosts: localhost
+  connection: local
+  gather_facts: no
+
+  roles:
+    - role: gce
+      vars:
+        instance: "{{ instance }}"
+
